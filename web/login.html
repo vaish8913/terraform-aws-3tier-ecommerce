@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - MyShop</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><strong>MyShop</strong><nav id="nav"></nav></header>
+  <main>
+    <p id="msg"></p>
+    <div class="grid">
+      <div class="card">
+        <h2>Login</h2>
+        <input id="l_email" type="email" placeholder="Email" autocomplete="username">
+        <input id="l_pw" type="password" placeholder="Password" autocomplete="current-password">
+        <button id="l_btn">Login</button>
+      </div>
+      <div class="card">
+        <h2>Create account</h2>
+        <input id="r_name" placeholder="Name">
+        <input id="r_email" type="email" placeholder="Email" autocomplete="username">
+        <input id="r_pw" type="password" placeholder="Password (8+ characters)" autocomplete="new-password">
+        <button id="r_btn">Register</button>
+      </div>
+    </div>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    renderNav();
+    const msg = document.getElementById('msg');
+    const v = (id) => document.getElementById(id).value;
+    document.getElementById('l_btn').onclick = async () => {
+      try {
+        await api('/auth/login', 'POST', { email: v('l_email'), password: v('l_pw') });
+        location.href = '/';
+      } catch (e) { msg.style.color = '#b00020'; msg.textContent = e.message; }
+    };
+    document.getElementById('r_btn').onclick = async () => {
+      try {
+        await api('/auth/register', 'POST', { name: v('r_name'), email: v('r_email'), password: v('r_pw') });
+        msg.style.color = 'green';
+        msg.textContent = 'Account created. You can log in now.';
+      } catch (e) { msg.style.color = '#b00020'; msg.textContent = e.message; }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyShop</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><strong>MyShop</strong><nav id="nav"></nav></header>
+  <main>
+    <h1>Products</h1>
+    <p id="msg"></p>
+    <div id="grid" class="grid"></div>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    (async () => {
+      await renderNav();
+      const grid = document.getElementById('grid');
+      const msg = document.getElementById('msg');
+      try {
+        const items = await api('/products');
+        items.forEach((p) => {
+          grid.append(el('div', { className: 'card' },
+            el('h3', { textContent: p.name }),
+            el('p', { textContent: 'Rs. ' + p.price }),
+            el('p', { textContent: p.stock > 0 ? 'In stock: ' + p.stock : 'Out of stock' }),
+            el('button', {
+              textContent: 'Add to cart', disabled: p.stock < 1,
+              onclick: async () => {
+                try {
+                  await api('/cart', 'POST', { product_id: p.id, quantity: 1 });
+                  msg.style.color = 'green';
+                  msg.textContent = 'Added ' + p.name + ' to cart';
+                } catch (e) {
+                  if (e.status === 401) { location.href = '/login'; return; }
+                  msg.style.color = '#b00020';
+                  msg.textContent = e.message;
+                }
+              },
+            })));
+        });
+      } catch (e) { msg.textContent = e.message; }
+    })();
+  </script>
+</body>
+</html>

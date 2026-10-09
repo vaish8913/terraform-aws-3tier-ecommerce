@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cart - MyShop</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><strong>MyShop</strong><nav id="nav"></nav></header>
+  <main>
+    <h1>Your cart</h1>
+    <p id="msg"></p>
+    <table>
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p><strong id="total"></strong></p>
+    <button id="checkout">Place order</button>
+    <h2>Your orders</h2>
+    <div id="orders"></div>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    const msg = document.getElementById('msg');
+    async function load() {
+      const rows = document.getElementById('rows');
+      rows.replaceChildren();
+      const cart = await api('/cart');
+      let total = 0;
+      cart.forEach((i) => {
+        total += Number(i.price) * i.quantity;
+        rows.append(el('tr', {},
+          el('td', { textContent: i.name }),
+          el('td', { textContent: 'Rs. ' + i.price }),
+          el('td', { textContent: String(i.quantity) }),
+          el('td', {}, el('button', {
+            textContent: 'Remove',
+            onclick: async () => { await api('/cart/' + i.product_id, 'DELETE'); load(); },
+          }))));
+      });
+      document.getElementById('total').textContent = 'Total: Rs. ' + total.toFixed(2);
+      document.getElementById('checkout').disabled = cart.length === 0;
+
+      const box = document.getElementById('orders');
+      box.replaceChildren();
+      const orders = await api('/orders');
+      orders.forEach((o) => {
+        box.append(el('div', { className: 'card', style: 'margin-bottom:12px' },
+          el('strong', { textContent: 'Order #' + o.id + ' - ' + o.status + ' - Rs. ' + o.total }),
+          ...o.items.map((it) => el('div', { textContent: it.quantity + ' x ' + it.name + ' @ Rs. ' + it.price }))));
+      });
+    }
+    (async () => {
+      const me = await renderNav();
+      if (!me) { location.href = '/login'; return; }
+      document.getElementById('checkout').onclick = async () => {
+        try {
+          const r = await api('/orders', 'POST');
+          msg.style.color = 'green';
+          msg.textContent = 'Order #' + r.order_id + ' placed';
+          load();
+        } catch (e) { msg.style.color = '#b00020'; msg.textContent = e.message; }
+      };
+      load();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Terraform
+
+.terraform/
+.terraform.lock.hcl
+
+*.tfstate
+*.tfstate.*
+crash.log
+
+terraform.tfvars
+*.auto.tfvars
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS
+
+Thumbs.db
+.DS_Store
+
+# Sensitive
+
+*.pem
+*.key
