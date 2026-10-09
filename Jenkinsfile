@@ -1,10 +1,10 @@
 pipeline {
     agent any
 
-    // Inject your AWS Credentials so Jenkins can access the S3 backend and delete the AWS resources
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('AKIA3RYC5VVR6TLBLPGM')
-        AWS_SECRET_ACCESS_KEY = credentials('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')
+        // This references the IDs we created in Jenkins Credentials
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_KEY')
     }
 
     stages {
@@ -18,7 +18,6 @@ pipeline {
         stage('Destroy Infrastructure') {
             steps {
                 echo '⚠️ WARNING: Tearing down all 3-tier e-commerce resources...'
-                // The -auto-approve flag ensures Jenkins doesn't pause for human confirmation
                 sh 'terraform destroy -auto-approve'
             }
         }
