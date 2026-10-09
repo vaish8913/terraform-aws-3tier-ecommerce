@@ -1,9 +1,9 @@
-# Remote state: the Jenkins workspace is temporary, so state must live outside it.
-# bucket and region are passed by the pipeline: terraform init -backend-config="bucket=..." -backend-config="region=..."
 terraform {
   backend "s3" {
+    bucket       = "vaish-terraform-state"
     key          = "ecommerce-3tier/terraform.tfstate"
+    region       = "ap-south-1"
     encrypt      = true
-    use_lockfile = true # S3 native locking, needs Terraform >= 1.10
+    use_lockfile = true
   }
 }
