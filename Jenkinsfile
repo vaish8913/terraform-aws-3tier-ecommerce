@@ -1,30 +1,24 @@
 pipeline {
     agent any
+
+    environment {
+        // This references the IDs we created in Jenkins Credentials
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_KEY')
+    }
+
     stages {
-        stage('Pull') {
+        stage('Initialize Backend') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/vaish8913/terraform-aws-3tier-ecommerce.git'
-            }
-        }
-        stage('terraform init') {
-            steps {
+                echo 'Connecting to AWS S3 Remote State...'
                 sh 'terraform init'
             }
         }
-        stage('terraform validate') {
+
+        stage('Destroy Infrastructure') {
             steps {
-                sh 'terraform validate'
-            }
-        }
-        stage('terraform plan') {
-            steps {
-                sh 'terraform plan -out=tfplan'
-            }
-        }
-        stage('terraform apply') {
-            steps {
-                sh 'terraform apply -auto-approve tfplan'
+                echo '⚠️ WARNING: Tearing down all 3-tier e-commerce resources...'
+                sh 'terraform destroy -auto-approve'
             }
         }
     }
